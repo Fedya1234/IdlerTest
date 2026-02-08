@@ -32,7 +32,7 @@ namespace Core.Storage
     public async UniTask AddAsync(Vector3 fromPosition)
     {
       await _view.Add(fromPosition);
-      SetCount(_state.Amount + 1);
+      Add();
     }
     
     public async UniTask MoveAsync(Vector3 position, Vector3 forward)

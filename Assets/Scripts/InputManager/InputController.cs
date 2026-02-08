@@ -10,6 +10,7 @@ namespace InputManager
         public event Action EventMovePointerUp;
         
         [NonSerialized] private Vector2 _move;
+        public Vector2 Move => _move;
         
         
         public void OnMove(Vector2 input)

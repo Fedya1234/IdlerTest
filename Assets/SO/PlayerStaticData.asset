@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44c9c770155f496c904573ff6a636588, type: 3}
   m_Name: PlayerStaticData
   m_EditorClassIdentifier: 
-  _speed: 3
-  _inventorySize: 10
+  _speed: 5
+  _rotationSpeed: 5
+  _inventorySize: 5

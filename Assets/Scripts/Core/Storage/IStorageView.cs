@@ -10,6 +10,5 @@ namespace Core.Storage
     public void UpdateCount(int count);
     public UniTask Add(Vector3 fromPosition);
     public UniTask Move(Vector3 position, Vector3 forward);
-    public void Remove();
   }
 }
