@@ -10,8 +10,10 @@ namespace Core.Visual
   {
     [SerializeField] private float _animationDuration;
     [SerializeField] private Dictionary<ResId, ResourceView> _resPrefabs = new();
+    [SerializeField] private Dictionary<ResourceView, int> _poolSizes = new();
     
     public float AnimationDuration => _animationDuration;
+    public Dictionary<ResourceView, int> PoolSizes => _poolSizes;
     
     public bool TryGetResourceView(ResId resId, out ResourceView prefab)
     {

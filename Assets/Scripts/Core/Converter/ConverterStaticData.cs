@@ -12,9 +12,11 @@ namespace Core.Converter
     [OdinSerialize] private Dictionary<ResId, int> _inputCapacity;
     [OdinSerialize] private Dictionary<ResId, int> _outputCapacity;
     [SerializeField] private float _conversionDuration;
+    [SerializeField] private float _transferInterval;
     
     public Dictionary<ResId, int> InputCapacity => _inputCapacity;
     public Dictionary<ResId, int> OutputCapacity => _outputCapacity;
     public float ConversionDuration => _conversionDuration;
+    public float TransferInterval => _transferInterval;
   }
 }

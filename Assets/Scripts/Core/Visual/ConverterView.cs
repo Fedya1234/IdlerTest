@@ -10,15 +10,11 @@ namespace Core.Visual
 {
   public class ConverterView : SerializedMonoBehaviour
   {
-    [OdinSerialize] private Dictionary<ResId, BaseStorageView> _inputStorages = new();
-    [OdinSerialize] private Dictionary<ResId, BaseStorageView> _outputStorages = new();
+    [OdinSerialize] private Dictionary<ResId, ConverterStorageView> _inputStorages = new();
+    [OdinSerialize] private Dictionary<ResId, ConverterStorageView> _outputStorages = new();
     [SerializeField] private Transform _buildingTransform;
-    [OdinSerialize] private Dictionary<ResId, PlayerTrigger> _inStorageTriggers = new();
-    [OdinSerialize] private Dictionary<ResId, PlayerTrigger> _outStorageTriggers = new();
-    public Dictionary<ResId, BaseStorageView> InputStorages => _inputStorages;
-    public Dictionary<ResId, BaseStorageView> OutputStorages => _outputStorages;
-    public Dictionary<ResId, PlayerTrigger> InStorageTriggers => _inStorageTriggers;
-    public Dictionary<ResId, PlayerTrigger> OutStorageTriggers => _outStorageTriggers;
+    public Dictionary<ResId, ConverterStorageView> InputStorages => _inputStorages;
+    public Dictionary<ResId, ConverterStorageView> OutputStorages => _outputStorages;
     public Transform BuildingTransform => _buildingTransform;
 
 
@@ -26,12 +22,12 @@ namespace Core.Visual
     {
     }
 
-    public IStorageView GetInputStorageView(ResId resId)
+    public ConverterStorageView GetInputStorageView(ResId resId)
     {
       return _inputStorages[resId];
     }
 
-    public IStorageView GetOutputStorageView(ResId resId)
+    public ConverterStorageView GetOutputStorageView(ResId resId)
     {
       return _outputStorages[resId];
     }

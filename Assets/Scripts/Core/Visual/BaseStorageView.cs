@@ -31,6 +31,12 @@ namespace Core.Visual
         throw new Exception($"Prefab for {_resId} not found");
       }
     }
+    
+    public PositionForward TopElementPosition()
+    {
+      var position = _container.position + LocalPositionByIndex(_activeViews.Count);
+      return new PositionForward(position, _container.forward);
+    }
 
     public void UpdateCount(int count)
     {
@@ -45,13 +51,14 @@ namespace Core.Visual
       }
     }
 
-    public UniTask Add(Vector3 fromWorldPosition)
+    public UniTask Add(Vector3 fromWorldPosition, Vector3 fromForward)
     {
       var view = AddView();
       if (view == null)
         return UniTask.CompletedTask;
 
       view.SetPosition(fromWorldPosition);
+      view.SetForward(fromForward);
       var targetLocalPosition = LocalPositionByIndex(_activeViews.Count);
       return view.MoveToLocalPoint(targetLocalPosition, _container.forward, _visualData.AnimationDuration);
     }

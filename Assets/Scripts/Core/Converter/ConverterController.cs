@@ -22,16 +22,17 @@ namespace Core.Converter
     private readonly ConverterView _view;
     private readonly InventoryController _inventoryController;
 
-    private Dictionary<ResId, StorageController> _inputStorages = new();
-    private Dictionary<ResId, StorageController> _outputStorages = new();
+    private Dictionary<ResId, StoragePlayerListener> _inputStoragePlayerListeners = new();
+    private Dictionary<ResId, StoragePlayerListener> _outputStoragePlayerListeners = new();
 
-    public List<ResId> InputResourceIds => new(_inputStorages.Keys);
-    public List<ResId> OutputResourceIds => new(_outputStorages.Keys);
-    
+    public List<ResId> InputResourceIds => new(_inputStoragePlayerListeners.Keys);
+    public List<ResId> OutputResourceIds => new(_outputStoragePlayerListeners.Keys);
+
     private bool IsConverting => _conversionCancellationTokenSource != null;
     private CancellationTokenSource _conversionCancellationTokenSource;
 
-    public ConverterController(ConverterStaticData staticData, ConverterState state, ConverterView view, InventoryController inventoryController)
+    public ConverterController(ConverterStaticData staticData, ConverterState state, ConverterView view,
+      InventoryController inventoryController)
     {
       _staticData = staticData;
       _state = state;
@@ -45,11 +46,13 @@ namespace Core.Converter
 
         var storageState = _state.InputStorage[resId];
         var storageView = _view.GetInputStorageView(resId);
-        storageView.Initialize(resId);
-        var storageController = new StorageController(storageStaticData, storageState, storageView);
-        storageController.EventChangeCount += OnInStorageCountChanged;
-        
-        _inputStorages.Add(resId, storageController);
+        storageView.StorageView.Initialize(resId);
+        var storageController = new StorageController(storageStaticData, storageState, storageView.StorageView);
+
+        var storagePlayerListener = new StoragePlayerListener(storageView.PlayerTrigger,
+          _inventoryController.GetStorage(resId), storageController, _staticData.TransferInterval);
+
+        _inputStoragePlayerListeners.Add(resId, storagePlayerListener);
       }
 
       foreach (var (resId, storageStaticData) in _staticData.OutputCapacity)
@@ -59,36 +62,35 @@ namespace Core.Converter
 
         var storageState = _state.OutputStorages[resId];
         var storageView = _view.GetOutputStorageView(resId);
-        storageView.Initialize(resId);
-        var storageController = new StorageController(storageStaticData, storageState, storageView);
-        storageController.EventChangeCount += OnOutStorageCountChanged;
-        _outputStorages.Add(resId, storageController);
+        storageView.StorageView.Initialize(resId);
+        var storageController = new StorageController(storageStaticData, storageState, storageView.StorageView);
+
+        var storagePlayerListener = new StoragePlayerListener(storageView.PlayerTrigger, storageController,
+          _inventoryController.GetStorage(resId), _staticData.TransferInterval);
+
+        _outputStoragePlayerListeners.Add(resId, storagePlayerListener);
       }
-      
+
       _view.Initialize();
-      
     }
 
     public void Dispose()
     {
-      foreach (var storage in _inputStorages.Values)
-        storage.EventChangeCount -= OnInStorageCountChanged;
+      foreach (var storage in _inputStoragePlayerListeners.Values)
+        storage.Dispose();
+      foreach (var storage in _outputStoragePlayerListeners.Values)
+        storage.Dispose();
 
-      foreach (var storage in _outputStorages.Values)
-        storage.EventChangeCount -= OnOutStorageCountChanged;
-
-      _inputStorages.Clear();
-      _outputStorages.Clear();
-      
-      
+      _inputStoragePlayerListeners.Clear();
+      _outputStoragePlayerListeners.Clear();
     }
 
     public bool IsOutputFull(out List<ResId> fullOutputs)
     {
       fullOutputs = new List<ResId>();
-      foreach (var (resId, storage) in _outputStorages)
+      foreach (var (resId, storage) in _outputStoragePlayerListeners)
       {
-        if (storage.IsFull)
+        if (storage.FromStorageController.IsFull)
           fullOutputs.Add(resId);
       }
 
@@ -98,53 +100,61 @@ namespace Core.Converter
     public bool IsInputEmpty(out List<ResId> emptyInputs)
     {
       emptyInputs = new List<ResId>();
-      foreach (var (resId, storage) in _inputStorages)
+      foreach (var (resId, storage) in _inputStoragePlayerListeners)
       {
-        if (storage.IsEmpty)
+        if (storage.ToStorageController.IsEmpty)
           emptyInputs.Add(resId);
       }
 
       return emptyInputs.Count > 0;
     }
-    
+
     public bool IsCanConvert() => IsInputEmpty(out var _) == false && IsOutputFull(out var _) == false;
-    
+
     public void TryStartConversion()
     {
       if (IsConverting)
         return;
-      
+
       if (IsCanConvert() == false)
         return;
-      
+
       ConversionLoop().Forget();
     }
-    
+
     private async UniTaskVoid ConversionLoop()
     {
-      var buildingPosition = _view.BuildingTransform.position;
       try
       {
         _conversionCancellationTokenSource = new CancellationTokenSource();
-        while (IsCanConvert())
+        while (!_conversionCancellationTokenSource.IsCancellationRequested)
         {
+          if (IsCanConvert() == false)
+          {
+            await UniTask.WaitForSeconds(0.1f, cancellationToken: _conversionCancellationTokenSource.Token);
+            continue;
+          }
+
           List<UniTask> tasks = new();
-          foreach (var storageController in _inputStorages.Values) 
-            tasks.Add(storageController.MoveAsync(buildingPosition, _view.BuildingTransform.forward));
-          
+          foreach (var storageController in _inputStoragePlayerListeners.Values)
+            tasks.Add(storageController.ToStorageController.MoveAsync(_view.BuildingTransform.position,
+              _view.BuildingTransform.forward));
+
           await UniTask.WhenAll(tasks);
-          
+
           tasks.Clear();
-          
+
           EventConversionStarted?.Invoke();
-          
-          await UniTask.WaitForSeconds(_staticData.ConversionDuration, cancellationToken: _conversionCancellationTokenSource.Token);
-          
-          foreach (var storageController in _outputStorages.Values) 
-            tasks.Add(storageController.AddAsync(buildingPosition));
-          
+
+          await UniTask.WaitForSeconds(_staticData.ConversionDuration,
+            cancellationToken: _conversionCancellationTokenSource.Token);
+
+          foreach (var storageController in _outputStoragePlayerListeners.Values)
+            tasks.Add(storageController.FromStorageController.AddAsync(_view.BuildingTransform.position,
+              _view.BuildingTransform.forward));
+
           await UniTask.WhenAll(tasks);
-          
+
           EventConversionCompleted?.Invoke();
 
           UpdateViews();
@@ -152,7 +162,6 @@ namespace Core.Converter
       }
       catch (OperationCanceledException) when (_conversionCancellationTokenSource.IsCancellationRequested)
       {
-        
       }
       catch (Exception ex)
       {
@@ -163,27 +172,6 @@ namespace Core.Converter
 
     private void UpdateViews()
     {
-      
-    }
-    
-    private void OnPlayerInStateChanged(bool isPlayerInside)
-    {
-      
-    }
-
-    private void OnPlayerOutStateChanged(bool isPlayerInside)
-    {
-      
-    }
-
-    private void OnInStorageCountChanged(StorageController storageController)
-    {
-      
-    }
-
-    private void OnOutStorageCountChanged(StorageController storageController)
-    {
-      
     }
   }
 }

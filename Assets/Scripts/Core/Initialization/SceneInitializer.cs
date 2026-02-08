@@ -7,6 +7,7 @@ using InputManager;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
+using UniversalPool;
 
 namespace Core.Initialization
 {
@@ -16,6 +17,7 @@ namespace Core.Initialization
     [SerializeField] private PlayerStaticData _playerStaticData;
     [SerializeField] private PlayerView _playerView;
     [SerializeField] private InputController _inputController;
+    [SerializeField] private VisualData _visualData;
     
     private Disposables _disposables = new ();
     
@@ -31,6 +33,10 @@ namespace Core.Initialization
 
     private void Initialize()
     {
+      foreach (var (prefab , count) in _visualData.PoolSizes) 
+        PoolManager.FillPool(prefab, count);
+      
+      
       var playerMoveController = new PlayerMoveController(_playerView, _inputController, _playerStaticData);
       _disposables.Register(playerMoveController);
       

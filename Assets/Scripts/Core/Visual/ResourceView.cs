@@ -10,6 +10,11 @@ namespace Core.Visual
     {
       transform.position = position;
     }
+    
+    public void SetForward(Vector3 forward)
+    {
+      transform.forward = forward;
+    }
 
     public UniTask MoveToLocalPoint(Vector3 localPoint, Vector3 forward, float duration)
     {

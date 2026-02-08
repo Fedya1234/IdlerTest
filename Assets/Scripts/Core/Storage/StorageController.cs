@@ -20,6 +20,8 @@ namespace Core.Storage
     public bool IsFull => _state.Amount >= _capacity;
     public bool IsEmpty => _state.Amount <= 0;
     public int PreviousAmount => _previousAmount;
+    
+    public IStorageView View => _view;
 
     public StorageController(int capacity, StorageState state, IStorageView view)
     {
@@ -29,9 +31,9 @@ namespace Core.Storage
       view.UpdateCount(_state.Amount);
     }
 
-    public async UniTask AddAsync(Vector3 fromPosition)
+    public async UniTask AddAsync(Vector3 fromPosition, Vector3 forward)
     {
-      await _view.Add(fromPosition);
+      await _view.Add(fromPosition, forward);
       Add();
     }
     
@@ -39,6 +41,12 @@ namespace Core.Storage
     {
       Remove();
       await _view.Move(position, forward);
+    }
+    
+    public void HideOne()
+    {
+      _view.Remove();
+      Remove();
     }
     
     private void Add()

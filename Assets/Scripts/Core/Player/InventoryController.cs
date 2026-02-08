@@ -23,10 +23,13 @@ namespace Core.Player
     {
       if (!_storages.ContainsKey(resId))
       {
+        var storageView = _view.GetStorageView(resId);
+        storageView.Initialize(resId);
+        
         _storages[resId] = new StorageController(
           _size,
           _state.GetStorage(resId),
-          _view.GetStorageView(resId)
+          storageView
         );
       }
       return _storages[resId];
