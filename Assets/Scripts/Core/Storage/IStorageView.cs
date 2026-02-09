@@ -13,5 +13,6 @@ namespace Core.Storage
     public UniTask Add(Vector3 fromPosition, Vector3 fromForward);
     public UniTask Move(Vector3 position, Vector3 forward);
     public void Remove();
+    public void SetAlertActive(bool isActive);
   }
 }

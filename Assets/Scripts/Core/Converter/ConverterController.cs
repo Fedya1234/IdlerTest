@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Core.Player;
 using Core.Res;
@@ -12,6 +13,7 @@ namespace Core.Converter
 {
   public class ConverterController : IDisposable
   {
+    public event Action<ConverterStateData> EventStateDataChanged; 
     public event Action<ResId> EventInputStorageChanged;
     public event Action<ResId> EventOutputStorageChanged;
     public event Action EventConversionStarted;
@@ -48,7 +50,8 @@ namespace Core.Converter
         var storageView = _view.GetInputStorageView(resId);
         storageView.StorageView.Initialize(resId);
         var storageController = new StorageController(storageStaticData, storageState, storageView.StorageView);
-
+        storageController.EventChangeCount += OnStorageCountChanged;
+        
         var storagePlayerListener = new StoragePlayerListener(storageView.PlayerTrigger,
           _inventoryController.GetStorage(resId), storageController, _staticData.TransferInterval);
 
@@ -64,7 +67,8 @@ namespace Core.Converter
         var storageView = _view.GetOutputStorageView(resId);
         storageView.StorageView.Initialize(resId);
         var storageController = new StorageController(storageStaticData, storageState, storageView.StorageView);
-
+        storageController.EventChangeCount += OnStorageCountChanged;
+        
         var storagePlayerListener = new StoragePlayerListener(storageView.PlayerTrigger, storageController,
           _inventoryController.GetStorage(resId), _staticData.TransferInterval);
 
@@ -77,12 +81,32 @@ namespace Core.Converter
     public void Dispose()
     {
       foreach (var storage in _inputStoragePlayerListeners.Values)
+      {
+        storage.ToStorageController.EventChangeCount -= OnStorageCountChanged;
         storage.Dispose();
+      }
+
       foreach (var storage in _outputStoragePlayerListeners.Values)
+      {
+        storage.FromStorageController.EventChangeCount -= OnStorageCountChanged;
         storage.Dispose();
+      }
 
       _inputStoragePlayerListeners.Clear();
       _outputStoragePlayerListeners.Clear();
+    }
+
+    private void OnStorageCountChanged(StorageController storageController)
+    {
+      CheckConverterState();
+    }
+    
+    private void CheckConverterState()
+    {
+      IsOutputFull(out var fullOutputs);
+      IsInputEmpty(out var emptyInputs);
+
+      EventStateDataChanged?.Invoke(new ConverterStateData(OutputResourceIds.FirstOrDefault(), fullOutputs, emptyInputs));
     }
 
     public bool IsOutputFull(out List<ResId> fullOutputs)
@@ -115,7 +139,8 @@ namespace Core.Converter
     {
       if (IsConverting)
         return;
-      
+
+      CheckConverterState();
       ConversionLoop().Forget();
     }
 
@@ -159,12 +184,9 @@ namespace Core.Converter
       }
       catch (OperationCanceledException) when (_conversionCancellationTokenSource.IsCancellationRequested)
       {
+        
       }
-      catch (Exception ex)
-      {
-        Debug.LogException(ex);
-        throw;
-      }
+
     }
 
     private void UpdateViews()

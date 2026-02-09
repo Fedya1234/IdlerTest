@@ -15,9 +15,7 @@ namespace Core.Visual
     public float AnimationDuration => _animationDuration;
     public Dictionary<ResourceView, int> PoolSizes => _poolSizes;
     
-    public bool TryGetResourceView(ResId resId, out ResourceView prefab)
-    {
-      return _resPrefabs.TryGetValue(resId, out prefab);
-    }
+    public bool TryGetResourceView(ResId resId, out ResourceView prefab) => 
+      _resPrefabs.TryGetValue(resId, out prefab);
   }
 }

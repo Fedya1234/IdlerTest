@@ -16,9 +16,9 @@ namespace Core.Visual
       transform.forward = forward;
     }
 
-    public UniTask MoveToLocalPoint(Vector3 localPoint, Vector3 forward, float duration)
+    public UniTask MoveToLocalPoint(Vector3 localPoint, float duration)
     {
-      return transform.LocalMoveToAsync(localPoint, forward, duration, this.GetCancellationTokenOnDestroy());
+      return transform.LocalMoveToAsync(localPoint, duration, this.GetCancellationTokenOnDestroy());
     }
 
     public UniTask MoveToPoint(Vector3 point, Vector3 forward, float duration)

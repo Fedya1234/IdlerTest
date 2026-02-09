@@ -13,6 +13,7 @@ namespace Core.Visual
     [SerializeField] private Transform _container;
     [SerializeField] private VisualData _visualData;
     [SerializeField] private float _yOffset = 0.2f;
+    [SerializeField] private GameObject _alertIcon;
     
     private ResId _resId;
 
@@ -37,6 +38,12 @@ namespace Core.Visual
       var position = _container.position + LocalPositionByIndex(_activeViews.Count);
       return new PositionForward(position, _container.forward);
     }
+    
+    public void SetAlertActive(bool isActive)
+    {
+      if (_alertIcon != null) 
+        _alertIcon.SetActive(isActive);
+    }
 
     public void UpdateCount(int count)
     {
@@ -60,7 +67,7 @@ namespace Core.Visual
       view.SetPosition(fromWorldPosition);
       view.SetForward(fromForward);
       var targetLocalPosition = LocalPositionByIndex(_activeViews.Count);
-      return view.MoveToLocalPoint(targetLocalPosition, _container.forward, _visualData.AnimationDuration);
+      return view.MoveToLocalPoint(targetLocalPosition, _visualData.AnimationDuration);
     }
 
     public async UniTask Move(Vector3 position, Vector3 forward)

@@ -46,29 +46,26 @@ namespace Tools.Extensions
     public static async UniTask LocalMoveToAsync(
       this Transform transform,
       Vector3 targetLocalPosition,
-      Vector3 forwardDirection,
       float duration,
       CancellationToken cancellationToken = default)
     {
       if (transform == null)
         throw new ArgumentNullException(nameof(transform));
-
+      
       if (duration <= 0f)
       {
         transform.localPosition = targetLocalPosition;
-        transform.forward = forwardDirection;
         return;
       }
 
       var start = transform.localPosition;
-      var forwardStart = transform.forward;
       var t = 0f;
 
       while (t < 1f && !cancellationToken.IsCancellationRequested)
       {
         t += Time.deltaTime / duration;
         transform.localPosition = Vector3.Lerp(start, targetLocalPosition, t);
-        transform.forward = Vector3.Lerp(forwardStart, forwardDirection, t);
+        transform.localRotation = Quaternion.Lerp(transform.localRotation, Quaternion.identity, t);
 
         await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
       }

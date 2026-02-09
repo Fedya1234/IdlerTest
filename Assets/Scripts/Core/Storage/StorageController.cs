@@ -28,7 +28,9 @@ namespace Core.Storage
       _capacity = capacity;
       _state = state;
       _view = view;
+      
       view.UpdateCount(_state.Amount);
+      _view.SetAlertActive(IsFull);
     }
 
     public async UniTask AddAsync(Vector3 fromPosition, Vector3 forward)
@@ -64,6 +66,8 @@ namespace Core.Storage
       _previousAmount = _state.Amount;
       _state.Amount = amount;
       EventChangeCount?.Invoke(this);
+
+      _view.SetAlertActive(IsFull);
     }
   }
 }
