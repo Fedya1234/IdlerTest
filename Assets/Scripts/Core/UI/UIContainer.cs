@@ -6,6 +6,6 @@ namespace Core.UI
   {
     [SerializeField] private AlertsMenu _alertsMenu;
     
-    public AlertsMenu AlertsMenu => _alertsMenu;
+    public IAlertsMenu AlertsMenu => _alertsMenu;
   }
 }

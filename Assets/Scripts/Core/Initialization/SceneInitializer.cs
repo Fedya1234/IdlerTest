@@ -15,11 +15,11 @@ namespace Core.Initialization
   public class SceneInitializer : SerializedMonoBehaviour
   {
     [OdinSerialize] private Dictionary<ConverterStaticData, ConverterView> _converters = new();
-    [SerializeField] private PlayerStaticData _playerStaticData;
+    [SerializeField] private UIContainer _uiContainer;
     [SerializeField] private PlayerView _playerView;
+    [SerializeField] private PlayerStaticData _playerStaticData;
     [SerializeField] private InputController _inputController;
     [SerializeField] private VisualData _visualData;
-    [SerializeField] private UIContainer _uiContainer;
 
     private Disposables _disposables = new();
 

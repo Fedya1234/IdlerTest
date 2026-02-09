@@ -5,12 +5,25 @@ using Sirenix.Serialization;
 
 namespace Core.UI
 {
-  public class AlertsMenu : SerializedMonoBehaviour
+  public interface IAlertsMenu
+  {
+    bool TryGetAlertIcon(ResId resId, out IAlertIcon alertIcon);
+  }
+
+  public class AlertsMenu : SerializedMonoBehaviour, IAlertsMenu
   {
     [OdinSerialize] private Dictionary<ResId, AlertIcon> _alertIcons = new();
     
-    public bool TryGetAlertIcon(ResId resId, out AlertIcon alertIcon) => 
-      _alertIcons.TryGetValue(resId, out alertIcon);
-    
+    public bool TryGetAlertIcon(ResId resId, out IAlertIcon alertIcon)
+    {
+      if (!_alertIcons.ContainsKey(resId))
+      {
+        alertIcon = null;
+        return false;
+      }
+      
+      alertIcon = _alertIcons[resId];
+      return true;
+    }
   }
 }

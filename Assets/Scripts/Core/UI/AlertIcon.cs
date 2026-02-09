@@ -3,7 +3,13 @@ using UnityEngine;
 
 namespace Core.UI
 {
-  public class AlertIcon : MonoBehaviour
+  public interface IAlertIcon
+  {
+    AlertIcon SetText(string text);
+    void SetActive(bool isActive);
+  }
+  
+  public class AlertIcon : MonoBehaviour, IAlertIcon
   {
     [SerializeField] private TMP_Text _alertText;
     

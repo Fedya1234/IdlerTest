@@ -8,9 +8,9 @@ namespace Core.Converter
   public class ConvertersStatesController : IDisposable
   {
     private readonly List<ConverterController> _converters;
-    private readonly AlertsMenu _alertsMenu;
+    private readonly IAlertsMenu _alertsMenu;
 
-    public ConvertersStatesController(List<ConverterController> converters, AlertsMenu alertsMenu)
+    public ConvertersStatesController(List<ConverterController> converters, IAlertsMenu alertsMenu)
     {
       _converters = converters;
       _alertsMenu = alertsMenu;

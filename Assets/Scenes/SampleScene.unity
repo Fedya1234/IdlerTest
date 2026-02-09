@@ -717,7 +717,7 @@ PrefabInstance:
     - target: {fileID: 8135886326569738822, guid: 56fae09712773584fb63896d473a98ee,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.00012207031
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8135886326569738822, guid: 56fae09712773584fb63896d473a98ee,
         type: 3}
@@ -1051,7 +1051,7 @@ PrefabInstance:
     - target: {fileID: 450088898192477199, guid: 2345c069411614aaf836d386b7d4b017,
         type: 3}
       propertyPath: m_Name
-      value: AlertIcon (1)
+      value: AlertIconRes2
       objectReference: {fileID: 0}
     - target: {fileID: 9105063600679109543, guid: 2345c069411614aaf836d386b7d4b017,
         type: 3}
@@ -2586,7 +2586,7 @@ PrefabInstance:
     - target: {fileID: 450088898192477199, guid: 2345c069411614aaf836d386b7d4b017,
         type: 3}
       propertyPath: m_Name
-      value: AlertIcon (2)
+      value: AlertIconRes3
       objectReference: {fileID: 0}
     - target: {fileID: 9105063600679109543, guid: 2345c069411614aaf836d386b7d4b017,
         type: 3}
@@ -3209,7 +3209,7 @@ PrefabInstance:
     - target: {fileID: 450088898192477199, guid: 2345c069411614aaf836d386b7d4b017,
         type: 3}
       propertyPath: m_Name
-      value: AlertIcon
+      value: AlertIconRes1
       objectReference: {fileID: 0}
     - target: {fileID: 9105063600679109543, guid: 2345c069411614aaf836d386b7d4b017,
         type: 3}
