@@ -35,8 +35,8 @@ namespace Core.Storage
 
     public async UniTask AddAsync(Vector3 fromPosition, Vector3 forward)
     {
-      await _view.Add(fromPosition, forward);
       Add();
+      await _view.Add(fromPosition, forward);
     }
     
     public async UniTask MoveAsync(Vector3 position, Vector3 forward)
