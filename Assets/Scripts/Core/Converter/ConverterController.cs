@@ -115,10 +115,7 @@ namespace Core.Converter
     {
       if (IsConverting)
         return;
-
-      if (IsCanConvert() == false)
-        return;
-
+      
       ConversionLoop().Forget();
     }
 
