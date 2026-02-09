@@ -20,9 +20,9 @@ namespace Core.Initialization
     [SerializeField] private InputController _inputController;
     [SerializeField] private VisualData _visualData;
     [SerializeField] private UIContainer _uiContainer;
-    
-    private Disposables _disposables = new ();
-    
+
+    private Disposables _disposables = new();
+
     private void Start()
     {
       Initialize();
@@ -35,33 +35,31 @@ namespace Core.Initialization
 
     private void Initialize()
     {
-      foreach (var (prefab , count) in _visualData.PoolSizes) 
+      foreach (var (prefab, count) in _visualData.PoolSizes)
         PoolManager.FillPool(prefab, count);
-      
-      //TODO: Fix storage max size bug
+
       var playerMoveController = new PlayerMoveController(_playerView, _inputController, _playerStaticData);
       _disposables.Register(playerMoveController);
-      
+
       var inventoryState = new PlayerInventoryState(); // LoadFrom save data in future
-      var inventoryController = new InventoryController(_playerStaticData.InventorySize, inventoryState, _playerView.InventoryView);
-      
+      var inventoryController =
+        new InventoryController(_playerStaticData.InventorySize, inventoryState, _playerView.InventoryView);
+
       var converters = new List<ConverterController>();
       foreach (var (settings, converterView) in _converters)
       {
         var converterState = new ConverterState(); // LoadFrom save data in future
         var converter = new ConverterController(settings, converterState, converterView, inventoryController);
         converters.Add(converter);
-        
+
         _disposables.Register(converter);
       }
-      
+
       var convertersStatesController = new ConvertersStatesController(converters, _uiContainer.AlertsMenu);
       _disposables.Register(convertersStatesController);
 
       foreach (var converterController in converters)
-      {
         converterController.TryStartConversion();
-      }
     }
   }
 }
